@@ -20,6 +20,11 @@ h1{font-size:28px;margin:8px 4px 4px;font-weight:800}
 .kpi .small{font-size:15px;color:#777}
 .good{color:#12843b}.warn{color:#b15c00}.bad{color:#bf1f2f}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.topstats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.statbox{background:#fff;border-radius:18px;padding:14px 10px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.statbox .label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.03em}
+.statbox .value{font-size:34px;font-weight:800;line-height:1.05;margin-top:4px}
+.statbox .small{font-size:12px;color:#777;margin-top:3px}
 .action{display:flex;flex-direction:column;gap:10px}
 .action-title{font-size:19px;font-weight:750}
 .row{display:flex;gap:10px}
@@ -39,6 +44,19 @@ input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid
 <div class="wrap">
 <h1>Stylesetters Stock Counter</h1>
 <p class="sub">Big buttons. No spreadsheet cells.</p>
+
+<div class="topstats">
+  <div class="statbox">
+    <div class="label">Live listings</div>
+    <div id="live" class="value">700</div>
+    <div class="small">eBay store</div>
+  </div>
+  <div class="statbox">
+    <div class="label">On order</div>
+    <div id="topOrder" class="value">0</div>
+    <div class="small">Not yet received</div>
+  </div>
+</div>
 
 <div class="card kpi">
   <div class="label">Safe to buy now</div>
@@ -69,6 +87,7 @@ input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid
 <div class="card">
   <div class="action-title">Starting figures / corrections</div>
   <div class="inputs">
+    <div><div class="help">Live listings</div><input id="liveInput" type="number" min="0" step="1" onchange="setVal('live',this.value)"></div>
     <div><div class="help">Buying credits</div><input id="creditsInput" type="number" min="0" step="1" onchange="setVal('credits',this.value)"></div>
     <div><div class="help">On order</div><input id="orderInput" type="number" min="0" step="1" onchange="setVal('order',this.value)"></div>
   </div>
@@ -89,10 +108,13 @@ input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid
 </div>
 <script>
 const KEY='stylesetters_v1';
-let s=JSON.parse(localStorage.getItem(KEY)||'null')||{credits:0,order:0,history:[],today:{bought:0,sold:0,received:0}};
+let s=JSON.parse(localStorage.getItem(KEY)||'null')||{credits:0,order:0,live:700,history:[],today:{bought:0,sold:0,received:0}};
+if(typeof s.live!=='number') s.live=700;
+if(!s.today) s.today={bought:0,sold:0,received:0};
+if(!Array.isArray(s.history)) s.history=[];
 function save(){localStorage.setItem(KEY,JSON.stringify(s));render()}
 function addHist(t,n){s.history.unshift(new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+' - '+t+' '+n);s.history=s.history.slice(0,30)}
-function sold(n){s.credits+=n;s.today.sold+=n;addHist('Sold',n);save()}
+function sold(n){s.credits+=n;s.live=Math.max(0,s.live-n);s.today.sold+=n;addHist('Sold',n);save()}
 function bought(n){n=Math.min(n,s.credits);if(n<=0){alert('No buying credits available.');return}s.credits-=n;s.order+=n;s.today.bought+=n;addHist('Bought',n);save()}
 function received(n){n=Math.min(n,s.order);if(n<=0){alert('Nothing currently on order.');return}s.order-=n;s.today.received+=n;addHist('Received',n);save()}
 function change(k,n){s[k]=Math.max(0,s[k]+n);addHist(k==='credits'?'Credits change':'Order change',n>0?'+'+n:n);save()}
@@ -101,6 +123,9 @@ function undoLast(){alert('Use the starting figures boxes for corrections, or un
 function render(){
   const safe=Math.max(0,Math.min(s.credits,35-s.order));
   document.getElementById('safe').textContent=safe;
+  document.getElementById('live').textContent=s.live;
+  document.getElementById('liveInput').value=s.live;
+  document.getElementById('topOrder').textContent=s.order;
   document.getElementById('credits').textContent=s.credits;
   document.getElementById('order').textContent=s.order;
   document.getElementById('creditsInput').value=s.credits;
