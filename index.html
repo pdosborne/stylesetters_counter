@@ -61,6 +61,12 @@ input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid
   </div>
 </div>
 
+<div class="card kpi" style="padding:14px 18px">
+  <div class="label">Processing / ready to photograph</div>
+  <div id="processing" class="value" style="font-size:40px">0</div>
+  <div class="small">Received, but not yet in drafts</div>
+</div>
+
 <div class="card kpi">
   <div class="label">Safe to buy now</div>
   <div id="safe" class="value good">0</div>
@@ -73,8 +79,9 @@ input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid
   <div class="row"><button class="plus" onclick="sold(1)">Sold 1</button><button class="plus" onclick="sold(5)">Sold 5</button></div>
   <div class="row"><button class="minus" onclick="bought(1)">Bought 1</button><button class="minus" onclick="bought(5)">Bought 5</button></div>
   <div class="row"><button onclick="received(1)">Received 1</button><button onclick="received(5)">Received 5</button></div>
+  <div class="row"><button onclick="drafted(1)">Drafted 1</button><button onclick="drafted(5)">Drafted 5</button></div>
   <div class="row"><button onclick="listed(1)">Listed 1</button><button onclick="listed(5)">Listed 5</button></div>
-  <div class="help">Sold moves an item out of Live. Bought adds an item to On Order. Received moves an item from On Order to Drafts. Listed moves an item from Drafts to Live.</div>
+  <div class="help">Sold removes an item from Live. Bought adds to On Order. Received moves it from On Order to Processing. Drafted moves it from Processing to Drafts. Listed moves it from Drafts to Live.</div>
 </div>
 
 <div class="card">
@@ -83,19 +90,20 @@ input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid
     <div><div class="help">Live listings</div><input id="liveInput" type="number" min="0" step="1" onchange="setVal('live',this.value)"></div>
     <div><div class="help">Drafts</div><input id="draftsInput" type="number" min="0" step="1" onchange="setVal('drafts',this.value)"></div>
     <div><div class="help">On order</div><input id="orderInput" type="number" min="0" step="1" onchange="setVal('order',this.value)"></div>
+    <div><div class="help">Processing</div><input id="processingInput" type="number" min="0" step="1" onchange="setVal('processing',this.value)"></div>
     <div><div class="help">Target total pipeline</div><input id="targetInput" type="number" min="0" step="1" onchange="setVal('target',this.value)"></div>
   </div>
 </div>
 
 <div class="card">
   <div class="action-title">Today</div>
-  <div id="today" class="help">0 bought · 0 sold · 0 received · 0 listed</div>
+  <div id="today" class="help">0 bought · 0 sold · 0 received · 0 drafted · 0 listed</div>
   <div class="history" id="history"></div>
 </div>
 
 <div class="card">
   <div class="action-title">How the system works</div>
-  <div class="help">Your target is 770 items in total: 700 live + 35 drafts + 35 on order. Safe to buy is the number needed to bring the total pipeline back up to your target. So if you have 650 live + 35 drafts + 35 on order = 720, Safe to Buy shows 50.</div>
+  <div class="help">Your pipeline includes every shirt you own or have committed to buy: Live + Drafts + Processing + On Order. Your target is 770 items in total. Safe to Buy is the number needed to bring that total back to 770. Processing covers shirts you have received but have not yet photographed and turned into drafts.</div>
 </div>
 </div>
 <script>
@@ -106,34 +114,39 @@ if(typeof s.live!=='number') s.live=700;
 if(typeof s.order!=='number') s.order=35;
 if(typeof s.drafts!=='number') s.drafts=35;
 if(typeof s.target!=='number') s.target=770;
+if(typeof s.processing!=='number') s.processing=0;
 if(!Array.isArray(s.history)) s.history=[];
-if(!s.today) s.today={bought:0,sold:0,received:0,listed:0};
+if(!s.today) s.today={bought:0,sold:0,received:0,drafted:0,listed:0};
 if(typeof s.today.bought!=='number') s.today.bought=0;
 if(typeof s.today.sold!=='number') s.today.sold=0;
 if(typeof s.today.received!=='number') s.today.received=0;
+if(typeof s.today.drafted!=='number') s.today.drafted=0;
 if(typeof s.today.listed!=='number') s.today.listed=0;
 function save(){localStorage.setItem(KEY,JSON.stringify(s));render()}
 function addHist(t,n){s.history.unshift(new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+' - '+t+' '+n);s.history=s.history.slice(0,30)}
 function sold(n){n=Math.min(n,s.live);if(n<=0){alert('No live listings available to remove.');return}s.live-=n;s.today.sold+=n;addHist('Sold',n);save()}
 function bought(n){s.order+=n;s.today.bought+=n;addHist('Bought',n);save()}
-function received(n){n=Math.min(n,s.order);if(n<=0){alert('Nothing currently on order.');return}s.order-=n;s.drafts+=n;s.today.received+=n;addHist('Received',n);save()}
+function received(n){n=Math.min(n,s.order);if(n<=0){alert('Nothing currently on order.');return}s.order-=n;s.processing+=n;s.today.received+=n;addHist('Received',n);save()}
+function drafted(n){n=Math.min(n,s.processing);if(n<=0){alert('Nothing currently in Processing.');return}s.processing-=n;s.drafts+=n;s.today.drafted+=n;addHist('Drafted',n);save()}
 function listed(n){n=Math.min(n,s.drafts);if(n<=0){alert('No drafts available to list.');return}s.drafts-=n;s.live+=n;s.today.listed+=n;addHist('Listed',n);save()}
 function setVal(k,v){s[k]=Math.max(0,parseInt(v||0,10));save()}
 function render(){
-  const total=s.live+s.drafts+s.order;
+  const total=s.live+s.drafts+s.processing+s.order;
   const safe=Math.max(0,s.target-total);
   document.getElementById('safe').textContent=safe;
   document.getElementById('live').textContent=s.live;
   document.getElementById('drafts').textContent=s.drafts;
   document.getElementById('topOrder').textContent=s.order;
+  document.getElementById('processing').textContent=s.processing;
   document.getElementById('liveInput').value=s.live;
   document.getElementById('draftsInput').value=s.drafts;
   document.getElementById('orderInput').value=s.order;
+  document.getElementById('processingInput').value=s.processing;
   document.getElementById('targetInput').value=s.target;
   document.getElementById('safe').className='value '+(safe===0?'good':safe<10?'warn':'good');
   document.getElementById('safeText').textContent=safe===0?'Your stock pipeline is full.':safe+' item'+(safe===1?'':'s')+' can be bought to restore the target.';
   document.getElementById('pipeline').textContent=`Total pipeline: ${total} / ${s.target}`;
-  document.getElementById('today').textContent=`${s.today.bought} bought · ${s.today.sold} sold · ${s.today.received} received · ${s.today.listed} listed`;
+  document.getElementById('today').textContent=`${s.today.bought} bought · ${s.today.sold} sold · ${s.today.received} received · ${s.today.drafted} drafted · ${s.today.listed} listed`;
   document.getElementById('history').innerHTML=s.history.map(x=>'<div>'+x+'</div>').join('');
 }
 render();
