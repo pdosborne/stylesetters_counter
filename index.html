@@ -7,10 +7,10 @@
 <meta name="apple-mobile-web-app-title" content="Stylesetters">
 <title>Stylesetters Stock Counter</title>
 <style>
-:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif; color:#111; background:#f3f4f6}
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif;color:#111;background:#f3f4f6}
 *{box-sizing:border-box}
 body{margin:0;padding:14px 14px 30px;background:#f3f4f6}
-.wrap{max-width:520px;margin:0 auto}
+.wrap{max-width:560px;margin:0 auto}
 h1{font-size:28px;margin:8px 4px 4px;font-weight:800}
 .sub{color:#666;margin:0 4px 16px;font-size:16px}
 .card{background:#fff;border-radius:20px;padding:18px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
@@ -19,25 +19,23 @@ h1{font-size:28px;margin:8px 4px 4px;font-weight:800}
 .kpi .value{font-size:54px;font-weight:800;line-height:1.0;margin:6px 0}
 .kpi .small{font-size:15px;color:#777}
 .good{color:#12843b}.warn{color:#b15c00}.bad{color:#bf1f2f}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.topstats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.statbox{background:#fff;border-radius:18px;padding:14px 10px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.statbox .label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.03em}
-.statbox .value{font-size:34px;font-weight:800;line-height:1.05;margin-top:4px}
-.statbox .small{font-size:12px;color:#777;margin-top:3px}
+.topstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.statbox{background:#fff;border-radius:18px;padding:14px 8px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.statbox .label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.02em}
+.statbox .value{font-size:32px;font-weight:800;line-height:1.05;margin-top:4px}
+.statbox .small{font-size:11px;color:#777;margin-top:3px}
 .action{display:flex;flex-direction:column;gap:10px}
 .action-title{font-size:19px;font-weight:750}
 .row{display:flex;gap:10px}
-button{border:0;border-radius:16px;background:#e9edf2;font-size:26px;font-weight:800;padding:16px 0;min-height:64px;flex:1;touch-action:manipulation}
+button{border:0;border-radius:16px;background:#e9edf2;font-size:25px;font-weight:800;padding:16px 0;min-height:64px;flex:1;touch-action:manipulation}
 button.plus{background:#0a7d3b;color:#fff}.minus{background:#dfe3e8}
 .reset{background:#222;color:#fff;width:100%;font-size:18px;margin-top:8px}
 .inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid #ddd;text-align:center}
 .help{font-size:15px;color:#666;line-height:1.4}
-.status{font-size:22px;font-weight:800;text-align:center;margin-top:8px}
 .history{font-size:15px;color:#555;line-height:1.45;max-height:180px;overflow:auto}
-.smallbtn{font-size:16px;min-height:48px}
-@media (max-width:380px){.grid{grid-template-columns:1fr}.kpi .value{font-size:46px}}
+.pipeline{font-size:18px;font-weight:700;text-align:center;margin-top:8px;color:#555}
+@media (max-width:380px){.topstats{gap:7px}.statbox{padding:12px 5px}.statbox .value{font-size:28px}.statbox .label{font-size:10px}.kpi .value{font-size:46px}}
 </style>
 </head>
 <body>
@@ -47,92 +45,95 @@ input{width:100%;font-size:24px;padding:14px;border-radius:14px;border:2px solid
 
 <div class="topstats">
   <div class="statbox">
-    <div class="label">Live listings</div>
+    <div class="label">Live</div>
     <div id="live" class="value">700</div>
     <div class="small">eBay store</div>
   </div>
   <div class="statbox">
+    <div class="label">Drafts</div>
+    <div id="drafts" class="value">35</div>
+    <div class="small">Ready to list</div>
+  </div>
+  <div class="statbox">
     <div class="label">On order</div>
-    <div id="topOrder" class="value">0</div>
-    <div class="small">Not yet received</div>
+    <div id="topOrder" class="value">35</div>
+    <div class="small">Not received</div>
   </div>
 </div>
 
 <div class="card kpi">
   <div class="label">Safe to buy now</div>
   <div id="safe" class="value good">0</div>
-  <div id="safeText" class="small">Enter your starting figures below.</div>
-</div>
-
-<div class="grid">
-  <div class="card kpi">
-    <div class="label">Buying credits</div>
-    <div id="credits" class="value">0</div>
-    <div class="row"><button class="plus" onclick="change('credits',1)">+1</button><button onclick="change('credits',5)">+5</button></div>
-  </div>
-  <div class="card kpi">
-    <div class="label">On order</div>
-    <div id="order" class="value">0</div>
-    <div class="row"><button class="plus" onclick="change('order',1)">+1</button><button onclick="change('order',5)">+5</button></div>
-  </div>
+  <div id="safeText" class="small">Your stock pipeline is full.</div>
+  <div id="pipeline" class="pipeline">Total pipeline: 770 / 770</div>
 </div>
 
 <div class="card action">
   <div class="action-title">Quick actions</div>
   <div class="row"><button class="plus" onclick="sold(1)">Sold 1</button><button class="plus" onclick="sold(5)">Sold 5</button></div>
   <div class="row"><button class="minus" onclick="bought(1)">Bought 1</button><button class="minus" onclick="bought(5)">Bought 5</button></div>
-  <button class="reset" onclick="undoLast()">Undo last action</button>
+  <div class="row"><button onclick="received(1)">Received 1</button><button onclick="received(5)">Received 5</button></div>
+  <div class="row"><button onclick="listed(1)">Listed 1</button><button onclick="listed(5)">Listed 5</button></div>
+  <div class="help">Sold moves an item out of Live. Bought adds an item to On Order. Received moves an item from On Order to Drafts. Listed moves an item from Drafts to Live.</div>
 </div>
 
 <div class="card">
   <div class="action-title">Starting figures / corrections</div>
   <div class="inputs">
     <div><div class="help">Live listings</div><input id="liveInput" type="number" min="0" step="1" onchange="setVal('live',this.value)"></div>
-    <div><div class="help">Buying credits</div><input id="creditsInput" type="number" min="0" step="1" onchange="setVal('credits',this.value)"></div>
+    <div><div class="help">Drafts</div><input id="draftsInput" type="number" min="0" step="1" onchange="setVal('drafts',this.value)"></div>
     <div><div class="help">On order</div><input id="orderInput" type="number" min="0" step="1" onchange="setVal('order',this.value)"></div>
+    <div><div class="help">Target total pipeline</div><input id="targetInput" type="number" min="0" step="1" onchange="setVal('target',this.value)"></div>
   </div>
-  <div style="margin-top:12px" class="help">For a new purchase, tap <b>Bought</b>. It removes one buying credit and adds one item to On Order. When a parcel arrives, tap <b>Received</b> below.</div>
-  <div class="row" style="margin-top:10px"><button onclick="received(1)">Received 1</button><button onclick="received(5)">Received 5</button></div>
 </div>
 
 <div class="card">
   <div class="action-title">Today</div>
-  <div id="today" class="help">0 bought · 0 sold · 0 received</div>
+  <div id="today" class="help">0 bought · 0 sold · 0 received · 0 listed</div>
   <div class="history" id="history"></div>
 </div>
 
 <div class="card">
   <div class="action-title">How the system works</div>
-  <div class="help">Every item sold = 1 buying credit. Every item bought = 1 credit spent and 1 item added to On Order. Safe to buy is the lower of your buying credits and the number of spaces left before On Order reaches 35.</div>
+  <div class="help">Your target is 770 items in total: 700 live + 35 drafts + 35 on order. Safe to buy is the number needed to bring the total pipeline back up to your target. So if you have 650 live + 35 drafts + 35 on order = 720, Safe to Buy shows 50.</div>
 </div>
 </div>
 <script>
 const KEY='stylesetters_v1';
-let s=JSON.parse(localStorage.getItem(KEY)||'null')||{credits:0,order:0,live:700,history:[],today:{bought:0,sold:0,received:0}};
+let s=JSON.parse(localStorage.getItem(KEY)||'null')||{live:700,drafts:35,order:35,target:770,history:[],today:{bought:0,sold:0,received:0,listed:0}};
+// Migrate data from the earlier version without losing live/order values.
 if(typeof s.live!=='number') s.live=700;
-if(!s.today) s.today={bought:0,sold:0,received:0};
+if(typeof s.order!=='number') s.order=35;
+if(typeof s.drafts!=='number') s.drafts=35;
+if(typeof s.target!=='number') s.target=770;
 if(!Array.isArray(s.history)) s.history=[];
+if(!s.today) s.today={bought:0,sold:0,received:0,listed:0};
+if(typeof s.today.bought!=='number') s.today.bought=0;
+if(typeof s.today.sold!=='number') s.today.sold=0;
+if(typeof s.today.received!=='number') s.today.received=0;
+if(typeof s.today.listed!=='number') s.today.listed=0;
 function save(){localStorage.setItem(KEY,JSON.stringify(s));render()}
 function addHist(t,n){s.history.unshift(new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+' - '+t+' '+n);s.history=s.history.slice(0,30)}
-function sold(n){s.credits+=n;s.live=Math.max(0,s.live-n);s.today.sold+=n;addHist('Sold',n);save()}
-function bought(n){n=Math.min(n,s.credits);if(n<=0){alert('No buying credits available.');return}s.credits-=n;s.order+=n;s.today.bought+=n;addHist('Bought',n);save()}
-function received(n){n=Math.min(n,s.order);if(n<=0){alert('Nothing currently on order.');return}s.order-=n;s.today.received+=n;addHist('Received',n);save()}
-function change(k,n){s[k]=Math.max(0,s[k]+n);addHist(k==='credits'?'Credits change':'Order change',n>0?'+'+n:n);save()}
+function sold(n){n=Math.min(n,s.live);if(n<=0){alert('No live listings available to remove.');return}s.live-=n;s.today.sold+=n;addHist('Sold',n);save()}
+function bought(n){s.order+=n;s.today.bought+=n;addHist('Bought',n);save()}
+function received(n){n=Math.min(n,s.order);if(n<=0){alert('Nothing currently on order.');return}s.order-=n;s.drafts+=n;s.today.received+=n;addHist('Received',n);save()}
+function listed(n){n=Math.min(n,s.drafts);if(n<=0){alert('No drafts available to list.');return}s.drafts-=n;s.live+=n;s.today.listed+=n;addHist('Listed',n);save()}
 function setVal(k,v){s[k]=Math.max(0,parseInt(v||0,10));save()}
-function undoLast(){alert('Use the starting figures boxes for corrections, or undo the most recent action by editing the affected number.')} 
 function render(){
-  const safe=Math.max(0,Math.min(s.credits,35-s.order));
+  const total=s.live+s.drafts+s.order;
+  const safe=Math.max(0,s.target-total);
   document.getElementById('safe').textContent=safe;
   document.getElementById('live').textContent=s.live;
-  document.getElementById('liveInput').value=s.live;
+  document.getElementById('drafts').textContent=s.drafts;
   document.getElementById('topOrder').textContent=s.order;
-  document.getElementById('credits').textContent=s.credits;
-  document.getElementById('order').textContent=s.order;
-  document.getElementById('creditsInput').value=s.credits;
+  document.getElementById('liveInput').value=s.live;
+  document.getElementById('draftsInput').value=s.drafts;
   document.getElementById('orderInput').value=s.order;
-  document.getElementById('safe').className='value '+(safe===0?'bad':safe<5?'warn':'good');
-  document.getElementById('safeText').textContent=safe===0?'Pause buying for now.':(s.order>=35?'Order pipeline is full.':safe+' item'+(safe===1?'':'s')+' available to buy.');
-  document.getElementById('today').textContent=`${s.today.bought} bought · ${s.today.sold} sold · ${s.today.received} received`;
+  document.getElementById('targetInput').value=s.target;
+  document.getElementById('safe').className='value '+(safe===0?'good':safe<10?'warn':'good');
+  document.getElementById('safeText').textContent=safe===0?'Your stock pipeline is full.':safe+' item'+(safe===1?'':'s')+' can be bought to restore the target.';
+  document.getElementById('pipeline').textContent=`Total pipeline: ${total} / ${s.target}`;
+  document.getElementById('today').textContent=`${s.today.bought} bought · ${s.today.sold} sold · ${s.today.received} received · ${s.today.listed} listed`;
   document.getElementById('history').innerHTML=s.history.map(x=>'<div>'+x+'</div>').join('');
 }
 render();
